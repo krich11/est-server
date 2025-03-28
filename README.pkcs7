@@ -1,0 +1,39 @@
+OpenSSL Command to Create the PKCS#7 Bundle
+Here’s how to create a cacerts.p7b file containing your CA certificate in PKCS#7 format:
+
+bash
+
+Collapse
+
+Wrap
+
+Copy
+openssl crl2pkcs7 -nocrl -certfile ca_cert.pem -out cacerts.p7b -outform DER
+Explanation:
+crl2pkcs7: Converts certificates (and optionally CRLs) to PKCS#7.
+-nocrl: Omits CRLs, making it a certs-only bundle (degenerate SignedData).
+-certfile ca_cert.pem: Specifies the input CA certificate(s) in PEM format.
+-out cacerts.p7b: Outputs the PKCS#7 bundle.
+-outform DER: Ensures the output is in DER format, which is then base64-encoded by the server for RFC 7030 compliance.
+If you have multiple CA certificates, concatenate them into a single PEM file first:
+
+bash
+
+Collapse
+
+Wrap
+
+Copy
+cat ca_cert1.pem ca_cert2.pem > ca_certs_combined.pem
+openssl crl2pkcs7 -nocrl -certfile ca_certs_combined.pem -out cacerts.p7b -outform DER
+Verify the bundle:
+
+bash
+
+Collapse
+
+Wrap
+
+Copy
+openssl pkcs7 -inform DER -in cacerts.p7b -print_certs
+This should display the certificates included in the bundle (e.g., your ca_cert.pem).
